@@ -1,0 +1,4 @@
+#!/bin/bash
+d1=$(date +%Y-%m-%d)
+d2=$(date +%Y-%m-%d --date="+6 month")
+curl "https://api-mijn.korfbal.nl/api/v2/facilities/NCX73X3/program?dateFrom=${d1}&dateTo=${d2}" | jq -c '.[].matches[] | [.ref_id, .date, .clubAddition.name, .teams.home.name, .teams.away.name, .ref_id]'  | sed 's/^\[//;s/,/ /' | sort | join  -  <(sort scheid2324wedstrijdnummer ) -a 1 | sed -n 's/\] \([^ ]*\)/["fluitploeg \1"]] /p' | sort -k2 | sed 's/^[^ ]* "/<tr><td><h2> /;s/:00+[^"]*","/<\/h2><br>/;' |  sed 's/","/<\/td><td><table><tr><td><h1>/;s/","/ - /;s/",/<\/h1><\/td><\/tr><tr><td>/;s/\["/<\/td><\/tr><tr><td>/;s/"]]//;s/$/<\/td><\/tr><\/table><\/tr>/' | sed 's/T/ <br>/'  | awk '{if(q!=$2){q=$2;printf "<tr><td colspan="1" style=\"background-color:#cccccc\"><h1>%s</h1></td></tr>\n",$2};$2="";print $0}' | cat <(echo "<table border=1>") - <(echo "</table>")
